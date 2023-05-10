@@ -37,7 +37,10 @@ export default class AuthController {
         roles: [userRole.value],
       });
       await user.save();
-      return res.json({ message: "пользователь создан" });
+      const { _id } = await User.findOne({ username });
+      user._id = _id;
+      const token = generateAccessToken(user._id, user.username, user.roles);
+      return res.json({ token, message: "Пользователь создан!" });
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: "Registration error!" });
@@ -63,11 +66,27 @@ export default class AuthController {
       res.status(400).json({ message: "Registration error!" });
     }
   }
-  async gitUsers(req, res) {
+  async getUsers(req, res) {
     try {
       const users = await User.find();
       res.json({ users });
-      res.json("server ok");
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+      res
+        .status(400)
+        .json({ message: "Ошибка получения списка пользователей" });
+    }
+  }
+  async getUserInfo(req, res) {
+    try {
+      const id = req.user.id;
+      const { username, roles } = await User.findById({ _id: id });
+      res.json({ username, roles: roles[0] });
+    } catch (e) {
+      console.log(e);
+      res
+        .status(400)
+        .json({ message: "Ошибка получения информации о пользователе" });
+    }
   }
 }
