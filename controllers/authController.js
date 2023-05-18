@@ -50,8 +50,8 @@ export default class AuthController {
   async login(req, res) {
     try {
       const { email, password } = req.body;
-      const user = await User.findOne({ email });
-      if (!email) {
+      const user = await User.findOne({ email: email });
+      if (!user) {
         return res
           .status(400)
           .json({ message: `Пользователь с email ${email} не найден` });
